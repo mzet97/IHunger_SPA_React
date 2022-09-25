@@ -22,13 +22,12 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const averageComments = (comments: Comment[]) => {
-    return (
-      comments
-        .map(comment => comment.starts)
-        .reduce((num1, num2) => num1 + num2) /
-      comments.length /
-      2
-    );
+    if (!comments) return 0;
+    if (comments.length === 0) return 0;
+
+    return comments
+      .map(comment => comment.starts)
+      .reduce((num1, num2) => num1 + num2);
   };
 
   return (
@@ -39,8 +38,8 @@ const Dashboard: React.FC = () => {
           <ItemRestaurant
             Id={restaurant.id}
             key={restaurant.id}
-            imageUrl={pizzaImg}
-            imageAlt={restaurant.description}
+            imageUrl={restaurant.image}
+            imageAlt={restaurant.name}
             title={restaurant.name}
             reviewCount={restaurant.comments.length}
             rating={averageComments(restaurant.comments)}
