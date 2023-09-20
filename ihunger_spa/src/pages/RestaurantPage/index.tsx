@@ -66,7 +66,8 @@ const RestaurantPage: React.FC = () => {
           borderColor="gray.300"
           border="1px"
           borderRadius="30px"
-          h="150px"
+          h="100%"
+          w="100%"
         >
           {products.map(product => (
             <ItemProduct

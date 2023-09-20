@@ -47,21 +47,32 @@ const Navbar: React.FC = () => {
         gap={6}
         borderBottom="1px"
         borderBottomColor="gray.00"
+        justifyContent="center"
+        alignContent="center"
       >
-        <Box w="20%" h="100%" ml="40%">
+        <Box w="70px" h="70px" ml="20px" mt="10px">
           <Button
             colorScheme="nome"
             onClick={onOpen}
-            m="30%"
+            m="20%"
             border="1px"
             borderColor="gray.100"
+            w="100%"
+            h="100%"
           >
-            <HamburgerIcon color="gray.100" />
+            <HamburgerIcon color="gray.100" w="100%" h="100%" />
           </Button>
           <DrawerCustom isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
         </Box>
-        <Center w="100%" h="100%">
-          <Image boxSize="25%" objectFit="cover" src={imgLogo} alt="IHunger" />
+        <Center mt="10px" w="250px" h="100px" ml="20%">
+          <Image
+            boxSize="100%"
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            src={imgLogo}
+            alt="IHunger"
+          />
         </Center>
         <HStack spacing="10%">
           <VStack>
