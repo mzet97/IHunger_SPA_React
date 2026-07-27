@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import { Box, HStack, Image } from '@chakra-ui/react';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
@@ -24,7 +23,7 @@ const ItemRestaurant: React.FC<property> = ({
   const history = useHistory();
 
   const toRestaurant = (id: string) => {
-    history.push('/restaurant', { params: id });
+    history.push(`/restaurant/${id}`);
   };
 
   return (
@@ -34,6 +33,8 @@ const ItemRestaurant: React.FC<property> = ({
       borderWidth="1px"
       borderRadius="30px"
       overflow="hidden"
+      cursor="pointer"
+      _hover={{ borderColor: 'green.400', shadow: 'md' }}
       onClick={() => toRestaurant(Id)}
     >
       <HStack>

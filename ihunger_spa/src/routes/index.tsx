@@ -10,6 +10,7 @@ import Dashboard from '../pages/Dashboard';
 import Restaurant from '../pages/RestaurantPage';
 import Profile from '../pages/Profile';
 import Orders from '../pages/Orders';
+import Cart from '../pages/Cart';
 
 const Routes: React.FC = () => (
   <Switch>
@@ -17,7 +18,8 @@ const Routes: React.FC = () => (
     <Route path="/signup" component={SignUp} />
 
     <Route path="/dashboard" component={Dashboard} isPrivate />
-    <Route path="/restaurant" component={Restaurant} isPrivate />
+    <Route path="/restaurant/:id" component={Restaurant} isPrivate />
+    <Route path="/cart" component={Cart} isPrivate />
     <Route path="/profile" component={Profile} isPrivate />
     <Route path="/orders" component={Orders} isPrivate />
   </Switch>

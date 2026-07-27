@@ -4,13 +4,16 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import theme from './styles/theme';
 
 import { AuthProvider } from './hooks/auth';
+import { CartProvider } from './hooks/cart';
 import Routes from './routes';
 
 const App: React.FC = () => (
   <Router>
     <ChakraProvider resetCSS theme={theme}>
       <AuthProvider>
-        <Routes />
+        <CartProvider>
+          <Routes />
+        </CartProvider>
       </AuthProvider>
     </ChakraProvider>
   </Router>

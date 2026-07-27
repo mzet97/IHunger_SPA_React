@@ -1,57 +1,103 @@
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable react/no-children-prop */
-/* eslint-disable no-unused-expressions */
-import React, { useState, useEffect } from 'react';
-import { Box, StackDivider, VStack, HStack } from '@chakra-ui/react';
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Badge,
+  Spinner,
+  Center,
+  Button,
+  Icon,
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { FiPackage } from 'react-icons/fi';
+import BaseBody from '../../components/BaseBody';
+import Order from '../../models/Order/Order';
+import { OrderStatusLabels, OrderStatusColors } from '../../models/Order/OrderStatus';
 import api from '../../services/api';
 
-import pizzaImg from '../../assets/img/pizza.jpg';
-import FilterRestaurant from '../../components/Filter/FilterRestaurant';
-import ItemRestaurant from '../../components/List/Item/ItemRestaurant';
-import Restaurant from '../../models/Restaurant/Restaurant';
-import Comment from '../../models/Restaurant/Comment';
-import BaseBody from '../../components/BaseBody';
-import User from '../../models/User/User';
-
 const Orders: React.FC = () => {
-  const token = JSON.parse(
-    localStorage.getItem('@IHunger:userToken') as string,
-  ) as User;
-  console.log(token);
-  return (
-    <>
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const history = useHistory();
+
+  useEffect(() => {
+    api
+      .get<Order[]>('orders')
+      .then(response => {
+        setOrders(response.data || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
       <BaseBody>
-        <HStack
-          divider={<StackDivider borderColor="gray.200" />}
-          spacing={4}
-          align="stretch"
-        >
-          <VStack spacing={4} align="stretch">
-            <Box h="40px" bg="black">
-              Imagem
-            </Box>
-          </VStack>
-          <VStack spacing={4} align="stretch">
-            <Box h="40px" bg="black">
-              Name: {token.profile.name}
-            </Box>
-            <Box h="40px" bg="black">
-              LastName: {token.profile.lastName}
-            </Box>
-            <Box h="40px" bg="black">
-              Email: {token.email}
-            </Box>
-            <Box h="40px" bg="black">
-              Type: {token.profile.type}
-            </Box>
-          </VStack>
-        </HStack>
-        <Box>
-          <h1>Esqueci a senha</h1>
-          <h1>Esqueci a senha</h1>
-        </Box>
+        <Center h="300px"><Spinner size="xl" color="green.400" /></Center>
       </BaseBody>
-    </>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <BaseBody>
+        <Center h="400px" flexDirection="column">
+          <Icon as={FiPackage} boxSize={16} color="gray.500" mb={4} />
+          <Text fontSize="xl" color="gray.500">No orders yet</Text>
+          <Button mt={4} colorScheme="green" onClick={() => history.push('/dashboard')}>
+            Browse Restaurants
+          </Button>
+        </Center>
+      </BaseBody>
+    );
+  }
+
+  return (
+    <BaseBody>
+      <VStack spacing={4} align="stretch" w="100%">
+        <Text fontSize="2xl" fontWeight="bold">My Orders</Text>
+
+        {orders.map(order => (
+          <Box key={order.id} p={5} bg="gray.700" borderRadius="lg" borderWidth="1px">
+            <HStack justify="space-between" mb={3}>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="sm" color="gray.500">
+                  Order #{order.id.substring(0, 8).toUpperCase()}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}
+                </Text>
+              </VStack>
+              <Badge colorScheme={OrderStatusColors[order.orderStatus] || 'gray'} px={3} py={1} borderRadius="full">
+                {OrderStatusLabels[order.orderStatus] || 'Unknown'}
+              </Badge>
+            </HStack>
+
+            <VStack align="stretch" spacing={2} mb={3}>
+              {order.items?.map(item => (
+                <HStack key={item.id} justify="space-between" px={2}>
+                  <Text fontSize="sm">
+                    {item.quantity}x Product #{item.idProduct.substring(0, 8)}
+                  </Text>
+                  <Text fontSize="sm" color="green.400">
+                    R$ {item.price.toFixed(2)}
+                  </Text>
+                </HStack>
+              ))}
+            </VStack>
+
+            <HStack justify="space-between" borderTopWidth="1px" pt={3}>
+              <Text fontWeight="bold">Total</Text>
+              <Text fontWeight="bold" color="green.400" fontSize="lg">
+                R$ {order.price.toFixed(2)}
+              </Text>
+            </HStack>
+          </Box>
+        ))}
+      </VStack>
+    </BaseBody>
   );
 };
 

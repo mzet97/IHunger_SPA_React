@@ -1,4 +1,3 @@
-/* eslint-disable react/no-children-prop */
 import { Search2Icon } from '@chakra-ui/icons';
 import {
   Box,
@@ -7,24 +6,38 @@ import {
   InputGroup,
   InputLeftElement,
   Select,
-  Switch,
   VStack,
-  Text,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import CategoryRestaurant from '../../../models/Restaurant/CategoryRestaurant';
 import api from '../../../services/api';
 
-const FilterRestaurant: React.FC = () => {
-  const [categoryRestaurants, setCategoryRestaurants] = useState<
-    CategoryRestaurant[]
-  >([]);
+interface FilterRestaurantProps {
+  onFilterChange?: (filter: { search: string; category: string }) => void;
+}
+
+const FilterRestaurant: React.FC<FilterRestaurantProps> = ({ onFilterChange }) => {
+  const [categoryRestaurants, setCategoryRestaurants] = useState<CategoryRestaurant[]>([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
-    api.get<CategoryRestaurant[]>(`category-restaurants`).then(response => {
-      setCategoryRestaurants(response.data);
+    api.get<CategoryRestaurant[]>('category-restaurants').then(response => {
+      setCategoryRestaurants(response.data || []);
     });
   }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+    onFilterChange?.({ search: value, category });
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setCategory(value);
+    onFilterChange?.({ search, category: value });
+  };
 
   return (
     <VStack
@@ -34,51 +47,35 @@ const FilterRestaurant: React.FC = () => {
       pt="20px"
       pl="10px"
       pr="10px"
+      pb="20px"
       borderRadius="30px"
-      h="180px"
     >
       <InputGroup>
-        <InputLeftElement
-          pointerEvents="none"
-          children={<Search2Icon color="gray.300" />}
+        <InputLeftElement pointerEvents="none">
+          <Search2Icon color="gray.300" />
+        </InputLeftElement>
+        <Input
+          type="text"
+          placeholder="Search restaurant..."
+          value={search}
+          onChange={handleSearchChange}
+          bg="gray.700"
         />
-        <Input type="tel" placeholder="Restaurant name" />
       </InputGroup>
-      <HStack spacing={2}>
-        <Box w="200px">
+      <HStack spacing={2} w="100%">
+        <Box w="100%">
           <Select
-            placeholder="Default"
-            bg="gray.800"
-            focusBorderColor="gray.800"
-            colorScheme="green"
-            borderColor="gray.300"
+            placeholder="All Categories"
+            bg="gray.700"
+            value={category}
+            onChange={handleCategoryChange}
           >
-            {categoryRestaurants.map(categoryRestaurant => (
-              <option key={categoryRestaurant.id} value={categoryRestaurant.id}>
-                {categoryRestaurant.name}
+            {categoryRestaurants.map(cat => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
               </option>
             ))}
           </Select>
-        </Box>
-      </HStack>
-      <HStack>
-        <Box>
-          <HStack>
-            <Text>Vegan</Text>
-            <Switch size="md" />
-          </HStack>
-        </Box>
-        <Box>
-          <HStack>
-            <Text>Vegetarian</Text>
-            <Switch size="md" />
-          </HStack>
-        </Box>
-        <Box>
-          <HStack>
-            <Text>Kosher</Text>
-            <Switch size="md" />
-          </HStack>
         </Box>
       </HStack>
     </VStack>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Center,
   Drawer,
@@ -31,16 +30,9 @@ const DrawerCustom: React.FC<DrawerCustomProps> = ({
 }: DrawerCustomProps) => {
   const history = useHistory();
 
-  const toHome = () => {
-    history.push('/dashboard');
-  };
-
-  const toProfile = () => {
-    history.push('/profile');
-  };
-
-  const toOrders = () => {
-    history.push('/orders');
+  const navigate = (path: string) => {
+    history.push(path);
+    onClose();
   };
 
   return (
@@ -66,7 +58,8 @@ const DrawerCustom: React.FC<DrawerCustomProps> = ({
                 colorScheme="green"
                 variant="solid"
                 mt="10px"
-                onClick={toHome}
+                w="100%"
+                onClick={() => navigate('/dashboard')}
               >
                 <Text size="24px">Home</Text>
               </Button>
@@ -75,7 +68,18 @@ const DrawerCustom: React.FC<DrawerCustomProps> = ({
                 colorScheme="green"
                 variant="solid"
                 mt="10px"
-                onClick={toOrders}
+                w="100%"
+                onClick={() => navigate('/cart')}
+              >
+                <Text size="24px">Cart</Text>
+              </Button>
+              <Button
+                rightIcon={<BiChevronRightCircle size="24px" />}
+                colorScheme="green"
+                variant="solid"
+                mt="10px"
+                w="100%"
+                onClick={() => navigate('/orders')}
               >
                 <Text size="24px">Orders</Text>
               </Button>
@@ -84,7 +88,8 @@ const DrawerCustom: React.FC<DrawerCustomProps> = ({
                 colorScheme="green"
                 variant="solid"
                 mt="10px"
-                onClick={toProfile}
+                w="100%"
+                onClick={() => navigate('/profile')}
               >
                 <Text size="24px">Profile</Text>
               </Button>

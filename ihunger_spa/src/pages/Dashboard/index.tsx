@@ -1,52 +1,100 @@
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable react/no-children-prop */
-/* eslint-disable no-unused-expressions */
 import React, { useState, useEffect } from 'react';
+import { Center, Spinner, Text } from '@chakra-ui/react';
 
 import api from '../../services/api';
 
-import pizzaImg from '../../assets/img/pizza.jpg';
 import FilterRestaurant from '../../components/Filter/FilterRestaurant';
 import ItemRestaurant from '../../components/List/Item/ItemRestaurant';
 import Restaurant from '../../models/Restaurant/Restaurant';
 import Comment from '../../models/Restaurant/Comment';
 import BaseBody from '../../components/BaseBody';
 
+interface FilterData {
+  search: string;
+  category: string;
+}
+
 const Dashboard: React.FC = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterData>({ search: '', category: '' });
 
   useEffect(() => {
-    api.get<Restaurant[]>(`restaurants`).then(response => {
-      setRestaurants(response.data);
-    });
+    api
+      .get<Restaurant[]>('restaurants')
+      .then(response => {
+        setRestaurants(response.data);
+        setFilteredRestaurants(response.data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const averageComments = (comments: Comment[]) => {
-    if (!comments) return 0;
-    if (comments.length === 0) return 0;
+  useEffect(() => {
+    let result = restaurants;
 
-    return comments
-      .map(comment => comment.starts)
-      .reduce((num1, num2) => num1 + num2);
+    if (filter.search) {
+      const search = filter.search.toLowerCase();
+      result = result.filter(
+        r =>
+          r.name.toLowerCase().includes(search) ||
+          r.description?.toLowerCase().includes(search),
+      );
+    }
+
+    if (filter.category) {
+      result = result.filter(
+        r => r.categoryRestaurant?.name === filter.category,
+      );
+    }
+
+    setFilteredRestaurants(result);
+  }, [filter, restaurants]);
+
+  const averageComments = (comments: Comment[]) => {
+    if (!comments || comments.length === 0) return 0;
+    const sum = comments.reduce((acc, c) => acc + Number(c.starts), 0);
+    return sum / comments.length;
   };
 
-  return (
-    <>
+  const handleFilterChange = (newFilter: FilterData) => {
+    setFilter(newFilter);
+  };
+
+  if (loading) {
+    return (
       <BaseBody>
-        <FilterRestaurant />
-        {restaurants.map(restaurant => (
+        <Center h="300px">
+          <Spinner size="xl" color="green.400" />
+        </Center>
+      </BaseBody>
+    );
+  }
+
+  return (
+    <BaseBody>
+      <FilterRestaurant onFilterChange={handleFilterChange} />
+      {filteredRestaurants.length === 0 ? (
+        <Center h="200px">
+          <Text color="gray.500" fontSize="lg">
+            No restaurants found
+          </Text>
+        </Center>
+      ) : (
+        filteredRestaurants.map(restaurant => (
           <ItemRestaurant
             Id={restaurant.id}
             key={restaurant.id}
             imageUrl={restaurant.image}
             imageAlt={restaurant.name}
             title={restaurant.name}
-            reviewCount={restaurant.comments.length}
+            reviewCount={restaurant.comments?.length || 0}
             rating={averageComments(restaurant.comments)}
           />
-        ))}
-      </BaseBody>
-    </>
+        ))
+      )}
+    </BaseBody>
   );
 };
 

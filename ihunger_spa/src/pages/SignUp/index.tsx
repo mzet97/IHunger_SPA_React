@@ -21,6 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import React from 'react';
 import UserRegister from '../../models/User/UserRegister';
 import api from '../../services/api';
+import { useAuth } from '../../hooks/auth';
 
 const schema = yup.object().shape({
   email: yup.string().email().max(256).required(),
@@ -43,6 +44,7 @@ const schema = yup.object().shape({
 const SignUp: React.FC = () => {
   const toast = useToast();
   const history = useHistory();
+  const { signIn } = useAuth();
 
   const {
     register,
@@ -59,36 +61,19 @@ const SignUp: React.FC = () => {
       values.address.latitude = '0';
       values.address.longitude = '0';
 
-      const { data } = await api.post('auth/register', values);
+      await api.post('auth/register', values);
 
-      if (!!data && !!data.data && !!data.success) {
-        localStorage.setItem('@IHunger:accessToken', data.data.accessToken);
-        localStorage.setItem('@IHunger:expiresIn', data.data.expiresIn);
-        localStorage.setItem(
-          '@IHunger:userToken',
-          JSON.stringify(data.data.userToken),
-        );
+      await signIn({ email: values.email, password: values.password });
 
-        api.defaults.headers.authorization = `Bearer ${data.data.accessToken}`;
+      toast({
+        title: 'Account created!',
+        description: 'Welcome to IHunger',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
 
-        toast({
-          title: 'Success create a account.',
-          description: 'Can use the system',
-          status: 'success',
-          duration: 9000,
-          isClosable: true,
-        });
-
-        history.push('/dashboard');
-      } else {
-        toast({
-          title: 'Failure create a account.',
-          description: 'Check your data',
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-        });
-      }
+      history.push('/dashboard');
     } catch (err) {
       toast({
         title: 'Failure create a account.',

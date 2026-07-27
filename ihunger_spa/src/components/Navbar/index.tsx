@@ -14,17 +14,22 @@ import {
   StatHelpText,
   HStack,
   VStack,
+  Icon,
+  Badge,
 } from '@chakra-ui/react';
 
 import { BiExit } from 'react-icons/bi';
+import { FiShoppingCart } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import DrawerCustom from '../Drawer';
 import imgLogo from '../../assets/img/IHunger_logo.png';
 import { useAuth } from '../../hooks/auth';
+import { useCart } from '../../hooks/cart';
 import { getDayFull } from '../../utils/dateHalper';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
+  const { total, itemCount } = useCart();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const history = useHistory();
 
@@ -78,11 +83,18 @@ const Navbar: React.FC = () => {
           <VStack>
             <Text fontSize="xl">User: {getUserEmail()}</Text>
           </VStack>
-          <VStack>
+          <VStack cursor="pointer" onClick={() => history.push('/cart')}>
             <Stat>
-              <StatLabel>Total</StatLabel>
-              <StatNumber>$0.00</StatNumber>
-              <StatHelpText>{getDayFull()}</StatHelpText>
+              <StatLabel>Cart</StatLabel>
+              <StatNumber color="green.400">
+                <HStack>
+                  <Icon as={FiShoppingCart} />
+                  <Text>R$ {total.toFixed(2)}</Text>
+                </HStack>
+              </StatNumber>
+              <StatHelpText>
+                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+              </StatHelpText>
             </Stat>
           </VStack>
           <Box mr="10%">
